@@ -1,0 +1,5 @@
+-get rid of selection boxes and make them a data table list
+
+-Allow for mapping different TGFs too, not just the one you chose at random
+
+-add a slider to change the probability threshold
