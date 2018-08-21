@@ -92,8 +92,8 @@ def draw_maps(tgfs):
         p = figure(x_axis_type="mercator", y_axis_type="mercator", match_aspect=True)
         p.add_tile(CARTODBPOSITRON)
         p.legend.visible = False
-        circles_glyph = p.circle('lats', 'lons', color = 'colors', size=5, source=src, legend=False)
-        tgf_glyph = p.diamond_cross('lats', 'lons', size = 20, color = 'red', source = tgf, legend = False)
+        circles_glyph = p.circle('lats', 'lons', color = 'colors', size=5, source=src, legend=False, hover_fill_alpha=0.5)
+        tgf_glyph = p.diamond_cross('lats', 'lons', size = 20, color = 'red', source = tgf, legend = False, hover_fill_alpha=0.1)
 
         # Add the glyphs to the plot using the renderers attribute
         p.renderers.append(circles_glyph)
