@@ -24,6 +24,6 @@ tab1 = draw_clusters(cluster_data)
 tab2 = draw_maps(useful_tgfs)
 
 tabs = Tabs(tabs = [tab1, tab2])
-#output_file("TimeVDistance.html", title = "Time Vs. Distance Plots")
+output_file("TimeVDistance.html", title = "Time Vs. Distance Plots")
 curdoc().add_root(tabs)
 curdoc().title = "Clustering Map"
