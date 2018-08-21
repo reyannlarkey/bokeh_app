@@ -1,0 +1,9 @@
+#!/bin/bash  
+echo "Opening the Bokeh App...Please wait :)"
+echo "     " 
+echo "Type 'ctrl+C' to exit the server" 
+echo "     "
+echo "     " 
+anaconda-project run
+echo "     "
+echo "Finished running the project"  
