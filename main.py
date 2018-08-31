@@ -20,11 +20,11 @@ useful_tgfs = pd.read_csv(join(dirname(__file__), 'data', 'useful_tgfs.txt'))
 
 
 
-tab1 = draw_clusters(cluster_data)
+# tab1 = draw_clusters(cluster_data)
 tab2 = draw_maps(useful_tgfs)
 
-tabs = Tabs(tabs = [tab1, tab2])
-#output_file("TimeVDistance.html", title = "Time Vs. Distance Plots")
+tabs = Tabs(tabs = [tab2])
+output_file("TimeVDistance.html", title = "Time Vs. Distance Plots")
 curdoc().add_root(tabs)
 curdoc().title = "Clustering Map"
 
