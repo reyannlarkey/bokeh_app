@@ -1,0 +1,177 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Selection Histogram</title>
+        
+<link rel="stylesheet" href="/apps/static/css/bokeh.min.css?v=40d5c9a6441908ce9b812db9e82be4d5" type="text/css" />
+<link rel="stylesheet" href="/apps/static/css/bokeh-widgets.min.css?v=509e292d9a7ef7e9eb8382fcde7b4a6e" type="text/css" />
+<link rel="stylesheet" href="/apps/static/css/bokeh-tables.min.css?v=aa783ffa4e290813a295a99cce2f8b5d" type="text/css" />
+        
+<script type="text/javascript" src="/apps/static/js/bokeh.min.js?v=93a6d5b75d0aa82771afd7953a32bbc4"></script>
+<script type="text/javascript" src="/apps/static/js/bokeh-widgets.min.js?v=48bb6e902071eb0e91bd46fa6839757b"></script>
+<script type="text/javascript" src="/apps/static/js/bokeh-tables.min.js?v=c313c61209be2172d6661c2c3be203c4"></script>
+<script type="text/javascript" src="/apps/static/js/bokeh-gl.min.js?v=968c5ad8df3c1d2dedea9538f248b0ba"></script>
+<script type="text/javascript">
+    Bokeh.set_log_level("info");
+</script>
+        <style>
+          html {
+            width: 100%;
+            height: 100%;
+          }
+          body {
+            width: 90%;
+            height: 100%;
+            margin: auto;
+          }
+        </style>
+    </head>
+    <body>
+        
+        <div class="bk-root">
+            <div class="bk-plotdiv" id="5cbfbe16-38fa-49d1-85e9-6ca6d0482657"></div>
+        </div>
+        
+        <script type="text/javascript">
+            (function(root, factory) {
+        //  if(typeof exports === 'object' && typeof module === 'object')
+        //    factory(require("Bokeh"));
+        //  else if(typeof define === 'function' && define.amd)
+        //    define(["Bokeh"], factory);
+        //  else if(typeof exports === 'object')
+        //    factory(require("Bokeh"));
+        //  else
+            factory(root["Bokeh"]);
+        })(this, function(Bokeh) {
+          var define;
+          return (function outer(modules, entry) {
+          if (Bokeh != null) {
+            return Bokeh.register_plugin(modules, {}, entry);
+          } else {
+            throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
+          }
+        })
+        ({
+          "custom/main": function(require, module, exports) {
+            var models = {
+              "Surface3d": require("custom/surface3d.surface3d").Surface3d
+            };
+            require("base").register_models(models);
+            module.exports = models;
+          },
+          "custom/surface3d.surface3d": function(require, module, exports) {
+        "use strict";
+        Object.defineProperty(exports, "__esModule", { value: true });
+        var OPTIONS, extend = function (child, parent) { for (var key in parent) {
+            if (hasProp.call(parent, key))
+                child[key] = parent[key];
+        } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; }, hasProp = {}.hasOwnProperty;
+        var p = require("core/properties");
+        var layout_dom_1 = require("models/layouts/layout_dom");
+        OPTIONS = {
+            width: '600px',
+            height: '600px',
+            style: 'surface',
+            showPerspective: true,
+            showGrid: true,
+            keepAspectRatio: true,
+            verticalRatio: 1.0,
+            legendLabel: 'stuff',
+            cameraPosition: {
+                horizontal: -0.35,
+                vertical: 0.22,
+                distance: 1.8
+            }
+        };
+        exports.Surface3dView = (function (superClass) {
+            extend(Surface3dView, superClass);
+            function Surface3dView() {
+                return Surface3dView.__super__.constructor.apply(this, arguments);
+            }
+            Surface3dView.prototype.initialize = function (options) {
+                Surface3dView.__super__.initialize.call(this, options);
+                this._graph = new vis.Graph3d(this.el, this.get_data(), this.model.options);
+                return this.connect(this.model.data_source.change, (function (_this) {
+                    return function () {
+                        return _this._graph.setData(_this.get_data());
+                    };
+                })(this));
+            };
+            Surface3dView.prototype.get_data = function () {
+                var data, i, j, ref, source;
+                data = new vis.DataSet();
+                source = this.model.data_source;
+                for (i = j = 0, ref = source.get_length(); 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+                    data.add({
+                        x: source.get_column(this.model.x)[i],
+                        y: source.get_column(this.model.y)[i],
+                        z: source.get_column(this.model.z)[i],
+                        style: source.get_column(this.model.color)[i]
+                    });
+                }
+                return data;
+            };
+            return Surface3dView;
+        })(layout_dom_1.LayoutDOMView);
+        exports.Surface3d = (function (superClass) {
+            extend(Surface3d, superClass);
+            function Surface3d() {
+                return Surface3d.__super__.constructor.apply(this, arguments);
+            }
+            Surface3d.prototype.default_view = exports.Surface3dView;
+            Surface3d.prototype.type = "Surface3d";
+            Surface3d.define({
+                x: [p.String],
+                y: [p.String],
+                z: [p.String],
+                color: [p.String],
+                data_source: [p.Instance],
+                options: [p.Any, OPTIONS]
+            });
+            return Surface3d;
+        })(layout_dom_1.LayoutDOM);
+        
+        }
+        }, "custom/main");
+        ;
+        });
+        (function() {
+          var fn = function() {
+            Bokeh.safely(function() {
+              (function(root) {
+                function embed_document(root) {
+                  var docs_json = {};
+                  var render_items = [{"elementid":"5cbfbe16-38fa-49d1-85e9-6ca6d0482657","sessionid":"P26orubELBlpskXyLILuoviEoentoIGc6YukVWy7bPh3","use_for_title":true}];
+              
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                }
+              
+                if (root.Bokeh !== undefined) {
+                  embed_document(root);
+                } else {
+                  var attempts = 0;
+                  var timer = setInterval(function(root) {
+                    if (root.Bokeh !== undefined) {
+                      embed_document(root);
+                      clearInterval(timer);
+                    }
+                    attempts++;
+                    if (attempts > 100) {
+                      console.log("Bokeh: ERROR: Unable to embed document because BokehJS library is missing")
+                      clearInterval(timer);
+                    }
+                  }, 10, root)
+                }
+              })(window);
+            });
+          };
+          if (document.readyState != "loading") fn();
+          else document.addEventListener("DOMContentLoaded", fn);
+        })();
+        
+        </script>
+    </body>
+</html>
