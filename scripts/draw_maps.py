@@ -9,7 +9,7 @@ from bokeh.tile_providers import CARTODBPOSITRON
 from bokeh.models.annotations import Title
 from bokeh.models import (CategoricalColorMapper, HoverTool,
 						  ColumnDataSource, Panel,
-						  FuncTickFormatter, SingleIntervalTicker, LinearAxis, LinearColorMapper)
+						  FuncTickFormatter, SingleIntervalTicker, LinearAxis, LinearColorMapper, LassoSelectTool)
 
 from bokeh.models.widgets import (CheckboxGroup, Slider, RangeSlider,
 								  Tabs, CheckboxButtonGroup,
@@ -19,8 +19,8 @@ from functools import partial
 from shapely.geometry import Point
 from shapely.ops import transform
 
-
-
+from bokeh.models.renderers import GlyphRenderer
+count = 0
 def draw_maps(tgfs):
 
     onlyfiles = [f for f in listdir('data') if isfile(join('data', f)) and f != "useful_tgfs.txt"]
@@ -81,14 +81,17 @@ def draw_maps(tgfs):
         tgf.data.update(tgf_src.data)
         make_plot(src,tgf, title = new_name)
         p.title.text = new_name
-        #print("you have selected the row nr " + str(selectionIndex), onlyfiles[selectionIndex])
+
 
 
 
     def make_plot(src,tgf,title = ""):
-
+        Npt = len(src.data['times'])
+        global count
+        count = len(src.data['times'])
         p = figure(x_axis_type="mercator", y_axis_type="mercator", match_aspect=True,
-                   tools="pan, wheel_zoom,reset, save,lasso_select,box_select", active_drag="lasso_select")
+                   tools="pan, wheel_zoom,reset, save,lasso_select,box_select", active_drag="lasso_select", plot_width = 500, plot_height = 500)
+
 
         p.add_tile(CARTODBPOSITRON)
         p.legend.visible = False
@@ -99,24 +102,41 @@ def draw_maps(tgfs):
         p.renderers.append(circles_glyph)
         p.renderers.append(tgf_glyph)
         # Hover tooltip for flight lines, assign only the line renderer
-        hover_circle = HoverTool(tooltips=[('Cluster ID', '@cluster')],
+        hover_circle = HoverTool(tooltips=[('Cluster ID', '@cluster'), ('Time', '@times')],
                                  line_policy='next',
                                  renderers=[circles_glyph])
 
-        fig2 = figure(title="simple line example", x_axis_label='x', y_axis_label='y')
+
+        fig2 = figure(title="simple line example", x_axis_label='x', y_axis_label='y', x_axis_type = "log", plot_width = 500, plot_height = 500)
+        new_dts = ColumnDataSource(data = {'dts':[]})
+        bins = []
+        print(len(fig2.renderers))
         def make_histogram(attrname, old, new):
+            fig2.renderers = fig2.renderers[0:5]
+                # fig2.renderers.pop(-1)
+
+            #print("indicies are: ", np.array(old['1d']['indices']))
             inds = np.array(new['1d']['indices'])
+
+
+            if count == 0:
+                c = 0
+            else:
+                c = count - Npt
+            print(src.data['times'][inds+c+1])
             #hhist1, _ = np.histogram(src['lats'][inds], bins=100)
             #selectionIndex = src.data['lats']
             ts = []
-            for i in inds:
-                ts.append(src.data['times'][i])
 
+            ts = src.data['times'][inds+c+1]
             dts = np.diff(ts)
-            hist,bins = np.histogram(dts, bins = 100)
-
+            hist,bins = np.histogram(dts, bins = np.logspace(0,2.778, 50))
+            # new_data = ColumnDataSource(data={'dts': hist})
+            # new_dts.data.update(new_data.data)
             line = fig2.line(bins[0:-1], hist)
+            circ = fig2.circle(bins[0:-1], hist)
             fig2.renderers.append(line)
+            fig2.renderers.append(circ)
 
         circles_glyph.data_source.on_change('selected', make_histogram)
 
@@ -166,5 +186,5 @@ def draw_maps(tgfs):
 
     layout = row(column(data_table, slider), p,fig2)
     tab = Panel(child=layout, title='Data')
-
+    p.select(LassoSelectTool).select_every_mousemove = False
     return tab
