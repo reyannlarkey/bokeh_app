@@ -81,11 +81,11 @@ def draw_maps(tgfs):
         p.title.text = new_name
         #print("you have selected the row nr " + str(selectionIndex), onlyfiles[selectionIndex])
 
-    # def slider_callback(attr, old, new):
-    #     new_src, new_name = make_data(file)
-    #     src.data.update(new_src.data)
-    #     make_plot(src, title=new_name)
-    #     p.title.text = new_name
+    def slider_callback(attr, old, new):
+        new_src, new_name = make_data(file)
+        src.data.update(new_src.data)
+        make_plot(src, title=new_name)
+        p.title.text = new_name
 
     def make_plot(src,tgf,title = ""):
 
@@ -137,11 +137,11 @@ def draw_maps(tgfs):
 
 
     slider = TextInput(value = "0.0", title = "Probability Thresh.")
-    #slider = Slider(start=0, end=1.0, value=0.0, step=.01, title="Probability Thresh")
+    slider2 = Slider(start=0, end=1.0, value=0.0, step=.01, title="Probability Thresh")
     table_source.selected.on_change('indices', callback)
     slider.on_change('value', callback)
 
-    layout = row(column(data_table, slider), p)
+    layout = row(column(data_table, slider,slider2), p)
     tab = Panel(child=layout, title='Data')
 
     return tab
