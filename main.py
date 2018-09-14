@@ -1,7 +1,7 @@
 import pandas as pd
 from os.path import dirname, join
 from bokeh.io import output_file, show
-
+from bokeh.embed import components
 from bokeh.io import curdoc
 from bokeh.models.widgets import Tabs
 
@@ -27,3 +27,7 @@ tabs = Tabs(tabs = [tab2])
 output_file("TimeVDistance.html", title = "Time Vs. Distance Plots")
 curdoc().add_root(tabs)
 curdoc().title = "Clustering Map"
+
+from bokeh.embed import server_document
+tag = server_document(url = 'http://localhost:5006/main') # or whatever the location of the server process is.
+print(tag)
