@@ -24,12 +24,13 @@ from shapely.ops import transform
 def draw_maps(tgfs):
 
     onlyfiles = [f for f in listdir('data') if isfile(join('data', f)) and f != "useful_tgfs.txt"]
+    onlyfiles.sort()
     table_source = ColumnDataSource(data  = {'TGF_ID': onlyfiles})
 
     columns = [
         TableColumn(field="TGF_ID", title="TGF ID")
     ]
-    data_table = DataTable(source=table_source, columns=columns, width=400, height=280)
+    data_table = DataTable(source=table_source, columns=columns, width=200, height=500)
 
     def make_data(file, prob_thresh = 0.9):
         kwargs = {"sep": '\t', "names": ['lat', 'lon', 'time', 'cluster', 'prob', 'outlier'], "skiprows": 1}
@@ -46,7 +47,8 @@ def draw_maps(tgfs):
                 pyproj.Proj(init='EPSG:3857')), Point(tgf['lon'], tgf['lat']))
         tgf_lat.append(tgfpnt.x)
         tgf_lon.append(tgfpnt.y)
-        tgf_src = ColumnDataSource(data = {'cluster': tgf['cluster'], 'lats': tgf_lat, 'lons':tgf_lon})
+        tgf_time = tgf['time']
+        tgf_src = ColumnDataSource(data = {'cluster': tgf['cluster'], 'lats': tgf_lat, 'lons':tgf_lon, 'times': tgf_time})
 
         cluster_colors = linear_palette(palette=Viridis256, n=len(set(read_file['cluster'])))
         read_file = read_file[read_file['prob']>=prob_thresh]
@@ -65,7 +67,7 @@ def draw_maps(tgfs):
 
 
         new_src = ColumnDataSource(
-            data={'cluster': read_file['cluster'], 'lats': cluster_lat, 'lons': cluster_lon, 'colors': colors})
+            data={'cluster': read_file['cluster'], 'lats': cluster_lat, 'lons': cluster_lon, 'colors': colors, 'times': read_file['time']})
 
         return new_src, tgf_src, file
 
@@ -81,15 +83,13 @@ def draw_maps(tgfs):
         p.title.text = new_name
         #print("you have selected the row nr " + str(selectionIndex), onlyfiles[selectionIndex])
 
-    # def slider_callback(attr, old, new):
-    #     new_src, new_name = make_data(file)
-    #     src.data.update(new_src.data)
-    #     make_plot(src, title=new_name)
-    #     p.title.text = new_name
+
 
     def make_plot(src,tgf,title = ""):
 
-        p = figure(x_axis_type="mercator", y_axis_type="mercator", match_aspect=True)
+        p = figure(x_axis_type="mercator", y_axis_type="mercator", match_aspect=True,
+                   tools="pan, wheel_zoom,reset, save,lasso_select,box_select", active_drag="lasso_select")
+
         p.add_tile(CARTODBPOSITRON)
         p.legend.visible = False
         circles_glyph = p.circle('lats', 'lons', color = 'colors', size=5, source=src, legend=False, hover_fill_alpha=0.5)
@@ -103,13 +103,32 @@ def draw_maps(tgfs):
                                  line_policy='next',
                                  renderers=[circles_glyph])
 
+        fig2 = figure(title="simple line example", x_axis_label='x', y_axis_label='y')
+        def make_histogram(attrname, old, new):
+            inds = np.array(new['1d']['indices'])
+            #hhist1, _ = np.histogram(src['lats'][inds], bins=100)
+            #selectionIndex = src.data['lats']
+            ts = []
+            for i in inds:
+                ts.append(src.data['times'][i])
+
+            dts = np.diff(ts)
+            hist,bins = np.histogram(dts, bins = 100)
+
+            line = fig2.line(bins[0:-1], hist)
+            fig2.renderers.append(line)
+
+        circles_glyph.data_source.on_change('selected', make_histogram)
+
 
         # print(cluster_colors)
         # Add the hovertools to the figure
 
         p.add_tools(hover_circle)
         p = style(p, title)
-        return p
+        return p, fig2
+
+
 
     def style(p, name = ""):
 
@@ -128,20 +147,24 @@ def draw_maps(tgfs):
         p.xaxis.major_label_text_font_size = '12pt'
         p.yaxis.major_label_text_font_size = '12pt'
 
+
         return p
 
     initial_file = onlyfiles[0]
     src, tgf, name = make_data(initial_file)
-    p = make_plot(src,tgf,name)
+    p, fig2 = make_plot(src,tgf,name)
     p.title.text  = name
+
+    #src.data_source.on_change('selected', make_histogram)
 
 
     slider = TextInput(value = "0.0", title = "Probability Thresh.")
-    #slider = Slider(start=0, end=1.0, value=0.0, step=.01, title="Probability Thresh")
+
     table_source.selected.on_change('indices', callback)
     slider.on_change('value', callback)
 
-    layout = row(column(data_table, slider), p)
+
+    layout = row(column(data_table, slider), p,fig2)
     tab = Panel(child=layout, title='Data')
 
     return tab
